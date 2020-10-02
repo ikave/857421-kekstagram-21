@@ -18,6 +18,13 @@ const MESSAGES_AUTORS = [
   `Григорий`
 ];
 
+const POST_DESCRIPTION = [
+  `Мое первое фото`,
+  `Мое второе фото`,
+  `Мое третье фото`,
+  `Мое крайнее фото`,
+];
+
 const MESSAGE_COUNT_MIN = 1;
 const MESSAGE_COUNT_MAX = 2;
 const POST_COMMENTS_MAX = 20;
@@ -25,6 +32,7 @@ const USER_AVATAR_IMAGE_MAX = 6;
 const POST_LIKES_MIN = 15;
 const POST_LIKES_MAX = 200;
 const POST_COUNT = 25;
+const FIRST_POST = 0;
 
 const pictureTemplate = document.querySelector(`#picture`)
     .content
@@ -78,7 +86,7 @@ const getPostComments = function () {
 const getPost = function (count) {
   let post = {
     url: `photos/${count}.jpg`,
-    description: ``,
+    description: getRandomPropArray(POST_DESCRIPTION),
     likes: getRandomNum(POST_LIKES_MIN, POST_LIKES_MAX),
     comments: getPostComments()
   };
@@ -112,3 +120,67 @@ for (let i = 0; i < posts.length; i++) {
   fragment.appendChild(renderPost(posts[i]));
 }
 picturesList.appendChild(fragment);
+
+// module3-task2
+
+const bigPicture = document.querySelector(`.big-picture`);
+bigPicture.classList.remove(`hidden`);
+document.querySelector(`body`).classList.add(`modal-open`);
+
+const socialComments = bigPicture.querySelector(`.social__comments`);
+const socialCommentsCount = bigPicture.querySelector(`.social__comment-count`);
+const commentsLoader = bigPicture.querySelector(`.comments-loader`);
+socialCommentsCount.classList.add(`hidden`);
+commentsLoader.classList.add(`hidden`);
+
+
+// Удаляю старые комментарии
+const oldComments = socialComments.children;
+for (let i = oldComments.length - 1; i >= 0; i--) {
+  oldComments[i].remove();
+}
+
+// Первый элемент из списка постов
+const post = posts[FIRST_POST];
+
+const createSocialComment = function (array, index, parent) {
+  const element = document.createElement(`li`);
+  element.classList.add(`social__comment`);
+
+  const image = document.createElement(`img`);
+  image.classList.add(`social__picture`);
+  image.setAttribute(`src`, array[index].avatar);
+  image.setAttribute(`alt`, array[index].name);
+  image.setAttribute(`width`, `35`);
+  image.setAttribute(`height`, `35`);
+
+  const text = document.createElement(`p`);
+  text.classList.add(`social__text`);
+  text.textContent = array[index].message;
+
+  element.append(image);
+  element.append(text);
+  parent.append(element);
+};
+
+const renderSocialComments = function () {
+  for (let i = 0; i < post.comments.length; i++) {
+    createSocialComment(post.comments, i, socialComments);
+  }
+};
+
+const renderBigPicture = function (item) {
+  const image = item.querySelector(`.big-picture__img`).children;
+  const likes = item.querySelector(`.likes-count`);
+  const commentsCount = item.querySelector(`.comments-count`);
+  const description = item.querySelector(`.social__caption`);
+
+  image[0].setAttribute(`src`, post.url);
+  description.textContent = post.description;
+  likes.textContent = post.likes;
+  commentsCount.textContent = post.comments.length;
+
+  renderSocialComments();
+};
+
+renderBigPicture(bigPicture);
