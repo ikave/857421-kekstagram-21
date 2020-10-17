@@ -124,8 +124,8 @@ picturesList.appendChild(fragment);
 // module3-task2
 
 const bigPicture = document.querySelector(`.big-picture`);
-bigPicture.classList.remove(`hidden`);
-document.querySelector(`body`).classList.add(`modal-open`);
+// bigPicture.classList.remove(`hidden`);
+// document.querySelector(`body`).classList.add(`modal-open`);
 
 const socialComments = bigPicture.querySelector(`.social__comments`);
 const socialCommentsCount = bigPicture.querySelector(`.social__comment-count`);
@@ -184,3 +184,81 @@ const renderBigPicture = function (item) {
 };
 
 renderBigPicture(bigPicture);
+
+
+const uploadFile = document.querySelector(`#upload-file`);
+const uploadOverlay = document.querySelector(`.img-upload__overlay`);
+const uploadClose = uploadOverlay.querySelector(`#upload-cancel`);
+const body = document.querySelector(`body`);
+const effectLevelLine = uploadOverlay.querySelector(`.effect-level__line`);
+const effectLevelPin = uploadOverlay.querySelector(`.effect-level__pin`);
+const effectLevelValue = uploadOverlay.querySelector(`.effect-level__value`);
+const uploadForm = document.querySelector(`.img-upload__form`);
+const uploadScale = uploadForm.querySelector(`.img-upload__scale`);
+const uploadPreview = uploadForm.querySelector(`.img-upload__preview`);
+const hashtags = uploadForm.querySelector(`.text__hashtags`);
+let uploadScaleValue = uploadForm.querySelector(`.scale__control--value`).value;
+
+uploadScale.addEventListener(`click`, function (evt) {
+  if (evt.target.classList.contains(`scale__control--smaller`)) {
+    uploadScaleValue = parseInt(uploadScaleValue) - 25;
+    if (uploadScaleValue <= 25) {
+      uploadScaleValue = 25;
+    }
+    uploadPreview.style.transform = `scale(${uploadScaleValue / 100})`;
+  }
+
+  if (evt.target.classList.contains(`scale__control--bigger`)) {
+    uploadScaleValue = parseInt(uploadScaleValue) + 25;
+    if (uploadScaleValue > 100) {
+      uploadScaleValue = 100;
+    }
+    uploadPreview.style.transform = `scale(${uploadScaleValue / 100})`;
+  }
+});
+
+const scale = function (number) {
+  number -= 25;
+  return number;
+};
+
+
+uploadFile.addEventListener(`change`, function () {
+  uploadOverlay.classList.remove(`hidden`);
+  body.classList.add(`modal-open`);
+
+  uploadClose.addEventListener(`click`, function () {
+    uploadOverlay.classList.add(`hidden`);
+    body.classList.remove(`modal-open`);
+    uploadFile.value = ``;
+  });
+
+  window.addEventListener(`keydown`, function (evt) {
+    if (evt.key === `Escape`) {
+      uploadOverlay.classList.add(`hidden`);
+      body.classList.remove(`modal-open`);
+      uploadFile.value = ``;
+    }
+  });
+});
+
+effectLevelPin.addEventListener(`mouseup`, function () {
+  effectLevelValue.value = Math.round(effectLevelPin.offsetLeft / effectLevelLine.offsetWidth * 100);
+
+});
+
+uploadForm.addEventListener(`change`, function (evt) {
+  if (evt.target.type === `radio`) {
+    effectLevelValue.value = 100;
+  }
+});
+
+hashtags.addEventListener(`input`, function () {
+  let arr = hashtags.value.split(` `);
+  const reg = /^#[\w]*$/;
+  for (let hashtag of arr) {
+    if (!reg.test(hashtag)) {
+      hashtags.setCustomValidity(`Неверный хештег`);
+    }
+  }
+});
