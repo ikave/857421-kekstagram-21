@@ -195,13 +195,13 @@ const effectLevelPin = uploadOverlay.querySelector(`.effect-level__pin`);
 const effectLevelValue = uploadOverlay.querySelector(`.effect-level__value`);
 const uploadForm = document.querySelector(`.img-upload__form`);
 const uploadScale = uploadForm.querySelector(`.img-upload__scale`);
-const uploadPreview = uploadForm.querySelector(`.img-upload__preview`);
+const uploadPreview = uploadForm.querySelector(`.img-upload__preview img`);
 const hashtags = uploadForm.querySelector(`.text__hashtags`);
 let uploadScaleValue = uploadForm.querySelector(`.scale__control--value`).value;
 
 uploadScale.addEventListener(`click`, function (evt) {
   if (evt.target.classList.contains(`scale__control--smaller`)) {
-    uploadScaleValue = parseInt(uploadScaleValue) - 25;
+    uploadScaleValue = parseInt(uploadScaleValue, 10) - 25;
     if (uploadScaleValue <= 25) {
       uploadScaleValue = 25;
     }
@@ -209,19 +209,13 @@ uploadScale.addEventListener(`click`, function (evt) {
   }
 
   if (evt.target.classList.contains(`scale__control--bigger`)) {
-    uploadScaleValue = parseInt(uploadScaleValue) + 25;
+    uploadScaleValue = parseInt(uploadScaleValue, 10) + 25;
     if (uploadScaleValue > 100) {
       uploadScaleValue = 100;
     }
     uploadPreview.style.transform = `scale(${uploadScaleValue / 100})`;
   }
 });
-
-const scale = function (number) {
-  number -= 25;
-  return number;
-};
-
 
 uploadFile.addEventListener(`change`, function () {
   uploadOverlay.classList.remove(`hidden`);
