@@ -189,6 +189,8 @@ const IMAGE_SCALE_MIN = 25;
 const IMAGE_SCALE_MAX = 100;
 const IMAGE_SCALE_STEP = 25;
 const BASE_EFFECT_LEVEL = 100;
+const HASHTAG_WIDTH_MAX = 20;
+const HASHTAGS_MAX_LENGTH = 5;
 
 const uploadFile = document.querySelector(`#upload-file`);
 const uploadOverlay = document.querySelector(`.img-upload__overlay`);
@@ -298,16 +300,49 @@ uploadFile.addEventListener(`change`, function () {
     window.addEventListener(`keydown`, pressEscKey);
   });
 
-  hashtagInput.addEventListener(`input`, function () {
+  const validity = function (hashtag) {
+    const reg = /^#[\w\S]*$/;
+    return reg.test(hashtag);
+  };
+
+
+  const checkHashtagsValidity = function () {
     let hashtags = hashtagInput.value.split(` `);
-    const reg = /^#[\w]*$/;
+    let invalid = hashtags.every(validity);
+
+    if (!invalid) {
+      hashtagInput.setCustomValidity(`Неверный хеш-тег`);
+    } else {
+      hashtagInput.setCustomValidity(``);
+    }
+    if (hashtags.length > HASHTAGS_MAX_LENGTH) {
+      hashtagInput.setCustomValidity(`Максимальная количество хеш-тегов не может быть больше ${HASHTAGS_MAX_LENGTH}`);
+    } else {
+      hashtagInput.setCustomValidity(``);
+    }
+
+    // if (isDublicate) {
+    //   hashtagInput.setCustomValidity(`Этот хеш-тег уже используется`);
+    // } else {
+    //   hashtagInput.setCustomValidity(``);
+    // }
+
     for (let hashtag of hashtags) {
-      if (!reg.test(hashtag)) {
-        hashtagInput.setCustomValidity(`Неверный хештег`);
+      if (hashtag.length > HASHTAG_WIDTH_MAX) {
+        hashtagInput.setCustomValidity(`Максимальная длинна хештега ${HASHTAG_WIDTH_MAX} символов`);
+      } else {
+        hashtagInput.setCustomValidity(``);
+      }
+      if (hashtag === `#`) {
+        hashtagInput.setCustomValidity(`Хеш-тег не может состоять только из одной решётки`);
       } else {
         hashtagInput.setCustomValidity(``);
       }
     }
+  };
+
+  hashtagInput.addEventListener(`input`, function () {
+    checkHashtagsValidity();
   });
 
   uploadClose.addEventListener(`click`, function () {
