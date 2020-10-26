@@ -183,6 +183,8 @@ const renderBigPicture = function (item) {
   renderSocialComments();
 };
 
+renderBigPicture(bigPicture);
+
 // module4-task1
 
 const IMAGE_SCALE_MIN = 25;
