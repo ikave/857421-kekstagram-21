@@ -301,40 +301,51 @@ uploadFile.addEventListener(`change`, function () {
   });
 
   const validity = function (hashtag) {
-    const reg = /^#[\w\S]*$/;
+    const reg = /^#[\0-9a-zA-Zа-яА-ЯёЁ]*$/;
     return reg.test(hashtag);
   };
 
+  const getHashtagsArray = function (input) {
+    let array = [];
+    let hashtags = input.split(` `);
+    for (let hashtag of hashtags) {
+      if (hashtag !== ``) {
+        array.push(hashtag);
+      }
+    }
+    return array;
+  };
+
+  const isDublicateValue = function (array) {
+    let result = [];
+    let isDublicate = false;
+    if (array.length > 1) {
+      for (let item of array) {
+        if (result.indexOf(item) === -1) {
+          result.push(item);
+          isDublicate = false;
+        } else {
+          isDublicate = true;
+        }
+      }
+    }
+    return isDublicate;
+  };
 
   const checkHashtagsValidity = function () {
-    let hashtags = hashtagInput.value.split(` `);
-    let invalid = hashtags.every(validity);
-
-    if (!invalid) {
-      hashtagInput.setCustomValidity(`Неверный хеш-тег`);
-    } else {
-      hashtagInput.setCustomValidity(``);
-    }
-    if (hashtags.length > HASHTAGS_MAX_LENGTH) {
-      hashtagInput.setCustomValidity(`Максимальная количество хеш-тегов не может быть больше ${HASHTAGS_MAX_LENGTH}`);
-    } else {
-      hashtagInput.setCustomValidity(``);
-    }
-
-    // if (isDublicate) {
-    //   hashtagInput.setCustomValidity(`Этот хеш-тег уже используется`);
-    // } else {
-    //   hashtagInput.setCustomValidity(``);
-    // }
+    let hashtags = getHashtagsArray(hashtagInput.value);
 
     for (let hashtag of hashtags) {
-      if (hashtag.length > HASHTAG_WIDTH_MAX) {
+      if (!validity(hashtag)) {
+        hashtagInput.setCustomValidity(`Неверный хеш-тег`);
+      } else if (hashtags.length > HASHTAGS_MAX_LENGTH) {
+        hashtagInput.setCustomValidity(`Максимальная количество хеш-тегов не может быть больше ${HASHTAGS_MAX_LENGTH}`);
+      } else if (hashtag.length > HASHTAG_WIDTH_MAX) {
         hashtagInput.setCustomValidity(`Максимальная длинна хештега ${HASHTAG_WIDTH_MAX} символов`);
-      } else {
-        hashtagInput.setCustomValidity(``);
-      }
-      if (hashtag === `#`) {
+      } else if (hashtag === `#`) {
         hashtagInput.setCustomValidity(`Хеш-тег не может состоять только из одной решётки`);
+      } else if (isDublicateValue(hashtags)) {
+        hashtagInput.setCustomValidity(`Этот хеш-тег уже используется`);
       } else {
         hashtagInput.setCustomValidity(``);
       }
