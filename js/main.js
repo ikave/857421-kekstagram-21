@@ -97,6 +97,7 @@ const getPosts = function () {
   let posts = [];
   for (let i = 1; i <= POST_COUNT; i++) {
     let post = getPost(i);
+    post.dataIndex = i;
     posts.push(post);
   }
   return posts;
@@ -111,7 +112,7 @@ const renderPost = function (post) {
   postElement.querySelector(`.picture__img`).setAttribute(`alt`, post.description);
   postElement.querySelector(`.picture__likes`).textContent = post.likes;
   postElement.querySelector(`.picture__comments`).textContent = post.comments.length;
-
+  postElement.setAttribute(`data-id`, post.dataIndex);
   return postElement;
 };
 
@@ -124,8 +125,6 @@ picturesList.appendChild(fragment);
 // module3-task2
 
 const bigPicture = document.querySelector(`.big-picture`);
-// bigPicture.classList.remove(`hidden`);
-// document.querySelector(`body`).classList.add(`modal-open`);
 
 const socialComments = bigPicture.querySelector(`.social__comments`);
 const socialCommentsCount = bigPicture.querySelector(`.social__comment-count`);
@@ -133,7 +132,6 @@ const commentsLoader = bigPicture.querySelector(`.comments-loader`);
 const bigPictureCloseButton = bigPicture.querySelector(`.big-picture__cancel`);
 socialCommentsCount.classList.add(`hidden`);
 commentsLoader.classList.add(`hidden`);
-
 
 // Удаляю старые комментарии
 const oldComments = socialComments.children;
@@ -161,24 +159,24 @@ const createSocialComment = function (array, index, parent) {
   parent.append(element);
 };
 
-const renderSocialComments = function (index) {
-  for (let i = 0; i < posts[index].comments.length; i++) {
-    createSocialComment(posts[index].comments, i, socialComments);
+const renderSocialComments = function (post) {
+  for (let i = 0; i < post.comments.length; i++) {
+    createSocialComment(post.comments, i, socialComments);
   }
 };
 
-const renderBigPicture = function (item, index) {
+const renderBigPicture = function (item, post) {
   const image = item.querySelector(`.big-picture__img`).children;
   const likes = item.querySelector(`.likes-count`);
   const commentsCount = item.querySelector(`.comments-count`);
   const description = item.querySelector(`.social__caption`);
 
-  image[0].setAttribute(`src`, posts[index].url);
-  description.textContent = posts[index].description;
-  likes.textContent = posts[index].likes;
-  commentsCount.textContent = posts[index].comments.length;
+  image[0].setAttribute(`src`, post.url);
+  description.textContent = post.description;
+  likes.textContent = post.likes;
+  commentsCount.textContent = post.comments.length;
 
-  renderSocialComments(index);
+  renderSocialComments(post);
 };
 
 const showBigPicturePopup = function () {
@@ -191,13 +189,30 @@ const closeBigPicturePopup = function () {
   document.querySelector(`body`).classList.remove(`modal-open`);
 };
 
-const getBigPictureProp = function (evt) {
-  let pictures = picturesList.querySelectorAll(`.picture`);
-  pictures = Array.from(pictures);
-  let target = evt.target.parentElement;
-  let index = pictures.indexOf(target);
+const closeBigPictureEsc = function (evt) {
+  if (evt.key === `Escape`) {
+    closeBigPicturePopup();
+  }
+};
 
-  renderBigPicture(bigPicture, index);
+const getBigPictureProp = function (evt) {
+  const pictures = picturesList.querySelectorAll(`.picture`);
+  let target = evt.target;
+  if (evt.target.classList.contains(`picture`)) {
+    target = evt.target;
+  } else {
+    target = evt.target.parentElement;
+  }
+  for (let picture of pictures) {
+    if (target.dataset.id === picture.dataset.id) {
+      for (let i = 0; i < posts.length; i++) {
+        if (parseInt(target.dataset.id, 10) === posts[i].dataIndex) {
+          let post = posts[i];
+          renderBigPicture(bigPicture, post);
+        }
+      }
+    }
+  }
 };
 
 const deleteSocialComments = function () {
@@ -214,9 +229,20 @@ picturesList.addEventListener(`click`, function (evt) {
   }
 });
 
+picturesList.addEventListener(`keydown`, function (evt) {
+  if (evt.key === `Enter`) {
+    showBigPicturePopup();
+    getBigPictureProp(evt);
+  }
+
+  window.addEventListener(`keydown`, closeBigPictureEsc);
+});
+
 bigPictureCloseButton.addEventListener(`click`, function () {
   closeBigPicturePopup();
   deleteSocialComments();
+
+  window.removeEventListener(`keydown`, closeBigPictureEsc);
 });
 
 
