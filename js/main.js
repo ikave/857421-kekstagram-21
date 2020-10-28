@@ -32,7 +32,7 @@ const USER_AVATAR_IMAGE_MAX = 6;
 const POST_LIKES_MIN = 15;
 const POST_LIKES_MAX = 200;
 const POST_COUNT = 25;
-const FIRST_POST = 0;
+
 
 const pictureTemplate = document.querySelector(`#picture`)
     .content
@@ -97,6 +97,7 @@ const getPosts = function () {
   let posts = [];
   for (let i = 1; i <= POST_COUNT; i++) {
     let post = getPost(i);
+    post.dataIndex = i;
     posts.push(post);
   }
   return posts;
@@ -111,7 +112,7 @@ const renderPost = function (post) {
   postElement.querySelector(`.picture__img`).setAttribute(`alt`, post.description);
   postElement.querySelector(`.picture__likes`).textContent = post.likes;
   postElement.querySelector(`.picture__comments`).textContent = post.comments.length;
-
+  postElement.setAttribute(`data-id`, post.dataIndex);
   return postElement;
 };
 
@@ -124,24 +125,19 @@ picturesList.appendChild(fragment);
 // module3-task2
 
 const bigPicture = document.querySelector(`.big-picture`);
-// bigPicture.classList.remove(`hidden`);
-// document.querySelector(`body`).classList.add(`modal-open`);
 
 const socialComments = bigPicture.querySelector(`.social__comments`);
 const socialCommentsCount = bigPicture.querySelector(`.social__comment-count`);
 const commentsLoader = bigPicture.querySelector(`.comments-loader`);
+const bigPictureCloseButton = bigPicture.querySelector(`.big-picture__cancel`);
 socialCommentsCount.classList.add(`hidden`);
 commentsLoader.classList.add(`hidden`);
-
 
 // Удаляю старые комментарии
 const oldComments = socialComments.children;
 for (let i = oldComments.length - 1; i >= 0; i--) {
   oldComments[i].remove();
 }
-
-// Первый элемент из списка постов
-const post = posts[FIRST_POST];
 
 const createSocialComment = function (array, index, parent) {
   const element = document.createElement(`li`);
@@ -163,13 +159,13 @@ const createSocialComment = function (array, index, parent) {
   parent.append(element);
 };
 
-const renderSocialComments = function () {
+const renderSocialComments = function (post) {
   for (let i = 0; i < post.comments.length; i++) {
     createSocialComment(post.comments, i, socialComments);
   }
 };
 
-const renderBigPicture = function (item) {
+const renderBigPicture = function (item, post) {
   const image = item.querySelector(`.big-picture__img`).children;
   const likes = item.querySelector(`.likes-count`);
   const commentsCount = item.querySelector(`.comments-count`);
@@ -180,10 +176,75 @@ const renderBigPicture = function (item) {
   likes.textContent = post.likes;
   commentsCount.textContent = post.comments.length;
 
-  renderSocialComments();
+  renderSocialComments(post);
 };
 
-renderBigPicture(bigPicture);
+const showBigPicturePopup = function () {
+  bigPicture.classList.remove(`hidden`);
+  document.querySelector(`body`).classList.add(`modal-open`);
+};
+
+const closeBigPicturePopup = function () {
+  bigPicture.classList.add(`hidden`);
+  document.querySelector(`body`).classList.remove(`modal-open`);
+};
+
+const closeBigPictureEsc = function (evt) {
+  if (evt.key === `Escape`) {
+    closeBigPicturePopup();
+  }
+};
+
+const getBigPictureProp = function (evt) {
+  const pictures = picturesList.querySelectorAll(`.picture`);
+  let target = evt.target;
+  if (evt.target.classList.contains(`picture`)) {
+    target = evt.target;
+  } else {
+    target = evt.target.parentElement;
+  }
+  for (let picture of pictures) {
+    if (target.dataset.id === picture.dataset.id) {
+      for (let i = 0; i < posts.length; i++) {
+        if (parseInt(target.dataset.id, 10) === posts[i].dataIndex) {
+          let post = posts[i];
+          renderBigPicture(bigPicture, post);
+        }
+      }
+    }
+  }
+};
+
+const deleteSocialComments = function () {
+  let comments = socialComments.querySelectorAll(`.social__comment`);
+  for (let i = 0; i < comments.length; i++) {
+    comments[i].remove();
+  }
+};
+
+picturesList.addEventListener(`click`, function (evt) {
+  if (evt.target.classList.contains(`picture__img`)) {
+    showBigPicturePopup();
+    getBigPictureProp(evt);
+  }
+});
+
+picturesList.addEventListener(`keydown`, function (evt) {
+  if (evt.key === `Enter`) {
+    showBigPicturePopup();
+    getBigPictureProp(evt);
+  }
+
+  window.addEventListener(`keydown`, closeBigPictureEsc);
+});
+
+bigPictureCloseButton.addEventListener(`click`, function () {
+  closeBigPicturePopup();
+  deleteSocialComments();
+
+  window.removeEventListener(`keydown`, closeBigPictureEsc);
+});
+
 
 // module4-task1
 
@@ -193,6 +254,7 @@ const IMAGE_SCALE_STEP = 25;
 const BASE_EFFECT_LEVEL = 100;
 const HASHTAG_WIDTH_MAX = 20;
 const HASHTAGS_MAX_LENGTH = 5;
+const TEXTAREA_MAX_LENGTH = 140;
 
 const uploadFile = document.querySelector(`#upload-file`);
 const uploadOverlay = document.querySelector(`.img-upload__overlay`);
@@ -205,6 +267,7 @@ const uploadForm = document.querySelector(`.img-upload__form`);
 const uploadScale = uploadForm.querySelector(`.img-upload__scale`);
 const uploadPreview = uploadForm.querySelector(`.img-upload__preview img`);
 const hashtagInput = uploadForm.querySelector(`.text__hashtags`);
+const textareaInput = uploadForm.querySelector(`.text__description`);
 const uploadScaleInput = uploadForm.querySelector(`.scale__control--value`);
 
 let effectLevel = BASE_EFFECT_LEVEL;
@@ -302,8 +365,16 @@ uploadFile.addEventListener(`change`, function () {
     window.addEventListener(`keydown`, pressEscKey);
   });
 
+  textareaInput.addEventListener(`focus`, function () {
+    window.removeEventListener(`keydown`, pressEscKey);
+  });
+
+  textareaInput.addEventListener(`blur`, function () {
+    window.addEventListener(`keydown`, pressEscKey);
+  });
+
   const validity = function (hashtag) {
-    const reg = /^#[\0-9a-zA-Zа-яА-ЯёЁ]*$/;
+    const reg = /^#[0-9a-zA-Zа-яА-ЯёЁ]*$/;
     return reg.test(hashtag);
   };
 
@@ -392,8 +463,24 @@ uploadFile.addEventListener(`change`, function () {
     }
   };
 
+  const checkTextareaLength = function () {
+    let invalid = false;
+    if (textareaInput.value.length > TEXTAREA_MAX_LENGTH) {
+      invalid = true;
+    }
+    return invalid;
+  };
+
   hashtagInput.addEventListener(`input`, function () {
     checkHashtagsValidity();
+  });
+
+  textareaInput.addEventListener(`input`, function () {
+    if (checkTextareaLength()) {
+      textareaInput.setCustomValidity(`Максимальная длинна сообщения ${TEXTAREA_MAX_LENGTH} символов`);
+    } else {
+      textareaInput.setCustomValidity(``);
+    }
   });
 
   uploadClose.addEventListener(`click`, function () {
