@@ -70,9 +70,9 @@
     for (let i = 0; i < effectsRadio.length; i++) {
       if (effectsRadio[i].checked) {
         effectsRadio[i].checked = false;
-        effectsRadio[0].checked = true;
       }
     }
+    effectsRadio[0].checked = true;
   };
 
   const onScaleClick = function (evt, input) {
