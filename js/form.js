@@ -63,6 +63,47 @@
     uploadPreview.style.transform = `scale(1)`;
   };
 
+  const mouseMove = function (evt) {
+    evt.preventDefault();
+
+    let startCoords = {
+      x: evt.clientX
+    };
+
+    const mouseMoveHandler = function (moveEvt) {
+      let shift = {
+        x: startCoords.x - moveEvt.clientX
+      };
+
+      startCoords.x = moveEvt.clientX;
+      let position = effectLevelPin.offsetLeft - shift.x;
+      if (position > effectLevelLine.offsetWidth) {
+        position = effectLevelLine.offsetWidth;
+        effectLevelDepth.style.width = effectLevelLine.offsetWidth;
+      } else if (position <= 0) {
+        position = 0;
+        effectLevelDepth.style.width = 0;
+      } else {
+        effectLevelDepth.style.width = `${position}px`;
+        effectLevelPin.style.left = `${position}px`;
+      }
+
+      effectLevelInput.setAttribute(`value`, Math.round(effectLevelPin.offsetLeft / effectLevelLine.offsetWidth * 100));
+
+      effectLevel = effectLevelInput.value;
+      setEffectLevel();
+    };
+
+    const mouseUpHandler = function () {
+
+      document.removeEventListener(`mousemove`, mouseMoveHandler);
+      document.removeEventListener(`mouseup`, mouseUpHandler);
+    };
+
+    document.addEventListener(`mousemove`, mouseMoveHandler);
+    document.addEventListener(`mouseup`, mouseUpHandler);
+  };
+
   const closeUploadPopup = function () {
     uploadOverlay.classList.add(`hidden`);
     body.classList.remove(`modal-open`);
@@ -73,6 +114,7 @@
       }
     }
     effectsRadio[0].checked = true;
+    effectLevelPin.removeEventListener(`mousedown`, mouseMove);
   };
 
   const onScaleClick = function (evt, input) {
@@ -122,46 +164,7 @@
       }
     });
 
-    effectLevelPin.addEventListener(`mousedown`, function (evt) {
-      evt.preventDefault();
-
-      let startCoords = {
-        x: evt.clientX
-      };
-
-      const mouseMoveHandler = function (moveEvt) {
-        let shift = {
-          x: startCoords.x - moveEvt.clientX
-        };
-
-        startCoords.x = moveEvt.clientX;
-        let position = effectLevelPin.offsetLeft - shift.x;
-        if (position > effectLevelLine.offsetWidth) {
-          position = effectLevelLine.offsetWidth;
-          effectLevelDepth.style.width = effectLevelLine.offsetWidth;
-        } else if (position <= 0) {
-          position = 0;
-          effectLevelDepth.style.width = 0;
-        } else {
-          effectLevelDepth.style.width = `${position}px`;
-          effectLevelPin.style.left = `${position}px`;
-        }
-
-        effectLevelInput.setAttribute(`value`, Math.round(effectLevelPin.offsetLeft / effectLevelLine.offsetWidth * 100));
-
-        effectLevel = effectLevelInput.value;
-        setEffectLevel();
-      };
-
-      const mouseUpHandler = function () {
-
-        document.removeEventListener(`mousemove`, mouseMoveHandler);
-        document.removeEventListener(`mouseup`, mouseUpHandler);
-      };
-
-      document.addEventListener(`mousemove`, mouseMoveHandler);
-      document.addEventListener(`mouseup`, mouseUpHandler);
-    });
+    effectLevelPin.addEventListener(`mousedown`, mouseMove);
 
     hashtagInput.addEventListener(`focus`, function () {
       window.removeEventListener(`keydown`, pressEscapeHandler);
