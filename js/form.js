@@ -6,12 +6,14 @@
   const IMAGE_SCALE_STEP = 25;
   const BASE_EFFECT_LEVEL = 100;
 
-
   const uploadFile = document.querySelector(`#upload-file`);
   const uploadOverlay = document.querySelector(`.img-upload__overlay`);
   const body = document.querySelector(`body`);
+  const effectLevelBlock = uploadOverlay.querySelector(`.effect-level`);
   const effectLevelLine = uploadOverlay.querySelector(`.effect-level__line`);
   const effectLevelPin = uploadOverlay.querySelector(`.effect-level__pin`);
+  const effectLevelDepth = uploadOverlay.querySelector(`.effect-level__depth`);
+  const effectsRadio = uploadOverlay.querySelectorAll(`.effects__radio`);
   const effectLevelInput = uploadOverlay.querySelector(`.effect-level__value`);
   const uploadForm = document.querySelector(`.img-upload__form`);
   const uploadScale = uploadForm.querySelector(`.img-upload__scale`);
@@ -22,23 +24,35 @@
 
   let effectLevel = BASE_EFFECT_LEVEL;
 
-  const getEffectLevel = function (value) {
-    let level = value;
-    return level;
+
+  const getEffects = function () {
+    effectLevel = effectLevelInput.value;
+    const filterEffects = {
+      none: `none`,
+      chrome: `grayscale(${effectLevel / 100})`,
+      sepia: `sepia(${effectLevel / 100})`,
+      marvin: `invert(${effectLevel}%)`,
+      phobos: `blur(${effectLevel * 3 / 100}px)`,
+      heat: `brightness(${effectLevel * 3 / 100})`,
+    };
+    return filterEffects;
   };
 
   const setEffectLevel = function () {
-    effectLevel = Math.round(effectLevelPin.offsetLeft / effectLevelLine.offsetWidth * 100);
-    effectLevelInput.value = effectLevel;
-  };
-
-  const filterEffects = {
-    none: `none`,
-    chrome: `grayscale(${getEffectLevel(effectLevel) / 100})`,
-    sepia: `sepia(${getEffectLevel(effectLevel) / 100})`,
-    marvin: `invert(${getEffectLevel(effectLevel)}%)`,
-    phobos: `blur(${getEffectLevel(effectLevel) * 3 / 100}px)`,
-    heat: `brightness(${getEffectLevel(effectLevel) * 3 / 100})`,
+    let effects = getEffects();
+    for (let i = 0; i < effectsRadio.length; i++) {
+      if (effectsRadio[i].checked) {
+        for (let effect in effects) {
+          if (effectsRadio[i].value === effect) {
+            uploadPreview.style.filter = effects[effect];
+          } else if (effectsRadio[i].value === `none`) {
+            effectLevelBlock.style.visibility = `hidden`;
+          } else {
+            effectLevelBlock.style.visibility = `visible`;
+          }
+        }
+      }
+    }
   };
 
   const openUploadPopup = function () {
@@ -49,10 +63,58 @@
     uploadPreview.style.transform = `scale(1)`;
   };
 
+  const mouseMove = function (evt) {
+    evt.preventDefault();
+
+    let startCoords = {
+      x: evt.clientX
+    };
+
+    const mouseMoveHandler = function (moveEvt) {
+      let shift = {
+        x: startCoords.x - moveEvt.clientX
+      };
+
+      startCoords.x = moveEvt.clientX;
+      let position = effectLevelPin.offsetLeft - shift.x;
+      if (position > effectLevelLine.offsetWidth) {
+        position = effectLevelLine.offsetWidth;
+        effectLevelDepth.style.width = effectLevelLine.offsetWidth;
+      } else if (position <= 0) {
+        position = 0;
+        effectLevelDepth.style.width = 0;
+      } else {
+        effectLevelDepth.style.width = `${position}px`;
+        effectLevelPin.style.left = `${position}px`;
+      }
+
+      effectLevelInput.setAttribute(`value`, Math.round(effectLevelPin.offsetLeft / effectLevelLine.offsetWidth * 100));
+
+      effectLevel = effectLevelInput.value;
+      setEffectLevel();
+    };
+
+    const mouseUpHandler = function () {
+
+      document.removeEventListener(`mousemove`, mouseMoveHandler);
+      document.removeEventListener(`mouseup`, mouseUpHandler);
+    };
+
+    document.addEventListener(`mousemove`, mouseMoveHandler);
+    document.addEventListener(`mouseup`, mouseUpHandler);
+  };
+
   const closeUploadPopup = function () {
     uploadOverlay.classList.add(`hidden`);
     body.classList.remove(`modal-open`);
     uploadFile.value = ``;
+    for (let i = 0; i < effectsRadio.length; i++) {
+      if (effectsRadio[i].checked) {
+        effectsRadio[i].checked = false;
+      }
+    }
+    effectsRadio[0].checked = true;
+    effectLevelPin.removeEventListener(`mousedown`, mouseMove);
   };
 
   const onScaleClick = function (evt, input) {
@@ -84,26 +146,25 @@
 
   uploadFile.addEventListener(`change`, function () {
     openUploadPopup();
+    setEffectLevel();
 
     uploadScale.addEventListener(`click`, function (evt) {
       onScaleClick(evt, uploadScaleInput);
     });
 
-    effectLevelPin.addEventListener(`mouseup`, function () {
-      setEffectLevel();
-    });
+    effectLevel = effectLevelInput.value;
 
     uploadForm.addEventListener(`change`, function (evt) {
       if (evt.target.type === `radio`) {
         effectLevel = BASE_EFFECT_LEVEL;
-        effectLevelInput.value = effectLevel;
-        for (let effect in filterEffects) {
-          if (evt.target.value === effect) {
-            uploadPreview.style.filter = filterEffects[effect];
-          }
-        }
+        effectLevelInput.setAttribute(`value`, effectLevel);
+        effectLevelPin.style.left = `${effectLevelLine.offsetWidth}px`;
+        effectLevelDepth.style.width = `${effectLevelLine.offsetWidth}px`;
+        setEffectLevel();
       }
     });
+
+    effectLevelPin.addEventListener(`mousedown`, mouseMove);
 
     hashtagInput.addEventListener(`focus`, function () {
       window.removeEventListener(`keydown`, pressEscapeHandler);

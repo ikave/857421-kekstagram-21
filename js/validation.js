@@ -122,7 +122,7 @@
   });
 
   uploadClose.addEventListener(`click`, function () {
-    window.form.closepopup();
+    window.form.closePopup();
   });
 
 
