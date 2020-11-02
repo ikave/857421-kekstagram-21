@@ -9,6 +9,7 @@
   const uploadFile = document.querySelector(`#upload-file`);
   const uploadOverlay = document.querySelector(`.img-upload__overlay`);
   const body = document.querySelector(`body`);
+  const effectLevelBlock = uploadOverlay.querySelector(`.effect-level`);
   const effectLevelLine = uploadOverlay.querySelector(`.effect-level__line`);
   const effectLevelPin = uploadOverlay.querySelector(`.effect-level__pin`);
   const effectLevelDepth = uploadOverlay.querySelector(`.effect-level__depth`);
@@ -44,6 +45,10 @@
         for (let effect in effects) {
           if (effectsRadio[i].value === effect) {
             uploadPreview.style.filter = effects[effect];
+          } else if (effectsRadio[i].value === `none`) {
+            effectLevelBlock.style.visibility = `hidden`;
+          } else {
+            effectLevelBlock.style.visibility = `visible`;
           }
         }
       }
@@ -62,6 +67,12 @@
     uploadOverlay.classList.add(`hidden`);
     body.classList.remove(`modal-open`);
     uploadFile.value = ``;
+    for (let i = 0; i < effectsRadio.length; i++) {
+      if (effectsRadio[i].checked) {
+        effectsRadio[i].checked = false;
+        effectsRadio[0].checked = true;
+      }
+    }
   };
 
   const onScaleClick = function (evt, input) {
@@ -93,6 +104,7 @@
 
   uploadFile.addEventListener(`change`, function () {
     openUploadPopup();
+    setEffectLevel();
 
     uploadScale.addEventListener(`click`, function (evt) {
       onScaleClick(evt, uploadScaleInput);
@@ -111,6 +123,8 @@
     });
 
     effectLevelPin.addEventListener(`mousedown`, function (evt) {
+      evt.preventDefault();
+
       let startCoords = {
         x: evt.clientX
       };
