@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  const body = document.querySelector(`body`);
   const pictureTemplate = document.querySelector(`#picture`)
   .content
   .querySelector(`.picture`);
@@ -18,9 +19,24 @@
     return postElement;
   };
 
-  const fragment = document.createDocumentFragment();
-  for (let i = 0; i < window.data.posts.length; i++) {
-    fragment.appendChild(renderPost(window.data.posts[i]));
-  }
-  picturesList.appendChild(fragment);
+  const onError = function (message) {
+    const errorArea = document.createElement(`div`);
+    errorArea.textContent = message;
+    errorArea.style.position = `absolute`;
+    errorArea.style.top = 0;
+    errorArea.style.left = 0;
+    errorArea.style.padding = `50px`;
+    errorArea.style.backgroundColor = `red`;
+    body.append(errorArea);
+  };
+
+  const onSuccess = function (data) {
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < data.length; i++) {
+      fragment.appendChild(renderPost(data[i]));
+    }
+    picturesList.appendChild(fragment);
+  };
+
+  window.load(onSuccess, onError);
 })();
