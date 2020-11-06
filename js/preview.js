@@ -6,6 +6,7 @@
   const socialCommentsCount = bigPicture.querySelector(`.social__comment-count`);
   const commentsLoader = bigPicture.querySelector(`.comments-loader`);
   const bigPictureCloseButton = bigPicture.querySelector(`.big-picture__cancel`);
+  const picturesList = document.querySelector(`.pictures`);
 
   socialCommentsCount.classList.add(`hidden`);
   commentsLoader.classList.add(`hidden`);
@@ -76,6 +77,15 @@
     for (let i = 0; i < comments.length; i++) {
       comments[i].remove();
     }
+  };
+
+  window.getData = function (posts) {
+    picturesList.addEventListener(`click`, function (evt) {
+      let target = evt.target.closest(`.picture`);
+      if (target) {
+        window.preview.show(posts[target.dataset.id]);
+      }
+    });
   };
 
   bigPictureCloseButton.addEventListener(`click`, function () {
