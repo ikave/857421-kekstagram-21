@@ -1,7 +1,6 @@
 'use strict';
 
 (function () {
-  const body = document.querySelector(`body`);
   const pictureTemplate = document.querySelector(`#picture`)
   .content
   .querySelector(`.picture`);
@@ -15,28 +14,16 @@
     postElement.querySelector(`.picture__img`).setAttribute(`alt`, post.description);
     postElement.querySelector(`.picture__likes`).textContent = post.likes;
     postElement.querySelector(`.picture__comments`).textContent = post.comments.length;
-    postElement.setAttribute(`data-id`, post.dataIndex);
+    postElement.setAttribute(`data-id`, post.id);
     return postElement;
   };
 
-  const onError = function (message) {
-    const errorArea = document.createElement(`div`);
-    errorArea.textContent = message;
-    errorArea.style.position = `absolute`;
-    errorArea.style.top = 0;
-    errorArea.style.left = 0;
-    errorArea.style.padding = `50px`;
-    errorArea.style.backgroundColor = `red`;
-    body.append(errorArea);
-  };
-
-  const onSuccess = function (data) {
+  window.render = function (posts) {
     const fragment = document.createDocumentFragment();
-    for (let i = 0; i < data.length; i++) {
-      fragment.appendChild(renderPost(data[i]));
+    for (let i = 0; i < posts.length; i++) {
+      fragment.appendChild(renderPost(posts[i]));
     }
     picturesList.appendChild(fragment);
   };
 
-  window.load(onSuccess, onError);
 })();
