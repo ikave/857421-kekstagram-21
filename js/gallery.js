@@ -14,13 +14,16 @@
     postElement.querySelector(`.picture__img`).setAttribute(`alt`, post.description);
     postElement.querySelector(`.picture__likes`).textContent = post.likes;
     postElement.querySelector(`.picture__comments`).textContent = post.comments.length;
-    postElement.setAttribute(`data-id`, post.dataIndex);
+    postElement.setAttribute(`data-id`, post.id);
     return postElement;
   };
 
-  const fragment = document.createDocumentFragment();
-  for (let i = 0; i < window.data.posts.length; i++) {
-    fragment.appendChild(renderPost(window.data.posts[i]));
-  }
-  picturesList.appendChild(fragment);
+  window.render = function (posts) {
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < posts.length; i++) {
+      fragment.appendChild(renderPost(posts[i]));
+    }
+    picturesList.appendChild(fragment);
+  };
+
 })();
