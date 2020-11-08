@@ -6,9 +6,11 @@
   const IMAGE_SCALE_STEP = 25;
   const BASE_EFFECT_LEVEL = 100;
 
+  const body = document.querySelector(`body`);
+  const main = document.querySelector(`main`);
+
   const uploadFile = document.querySelector(`#upload-file`);
   const uploadOverlay = document.querySelector(`.img-upload__overlay`);
-  const body = document.querySelector(`body`);
   const effectLevelBlock = uploadOverlay.querySelector(`.effect-level`);
   const effectLevelLine = uploadOverlay.querySelector(`.effect-level__line`);
   const effectLevelPin = uploadOverlay.querySelector(`.effect-level__pin`);
@@ -21,6 +23,13 @@
   const hashtagInput = uploadForm.querySelector(`.text__hashtags`);
   const textareaInput = uploadForm.querySelector(`.text__description`);
   const uploadScaleInput = uploadForm.querySelector(`.scale__control--value`);
+
+  const successUploadTemplate = document.querySelector(`#success`)
+  .content
+  .querySelector(`.success`);
+  const errorUploadTemplate = document.querySelector(`#error`)
+  .content
+  .querySelector(`.error`);
 
   let effectLevel = BASE_EFFECT_LEVEL;
 
@@ -115,6 +124,7 @@
     }
     effectsRadio[0].checked = true;
     effectLevelPin.removeEventListener(`mousedown`, mouseMove);
+    textareaInput.value = ``;
   };
 
   const onScaleClick = function (evt, input) {
@@ -183,6 +193,54 @@
     });
 
     window.addEventListener(`keydown`, pressEscapeHandler);
+
+    const pressEscapeMessage = function (evt) {
+      window.util.pressEscKey(evt, removeMessagePopup);
+    };
+
+    const submitSuccess = function () {
+      const successBlock = successUploadTemplate.cloneNode(true);
+      closeUploadPopup();
+      main.append(successBlock);
+      successBlock.addEventListener(`click`, closeMessage);
+      window.addEventListener(`keydown`, pressEscapeMessage);
+    };
+
+    const submitError = function () {
+      const errorBlock = errorUploadTemplate.cloneNode(true);
+      closeUploadPopup();
+      main.append(errorBlock);
+      errorBlock.addEventListener(`click`, closeMessage);
+      window.addEventListener(`keydown`, pressEscapeMessage);
+    };
+
+    const removeMessagePopup = function () {
+      let popup;
+      const success = document.querySelector(`.success`);
+      const error = document.querySelector(`.error`);
+      if (success) {
+        popup = success;
+      } else {
+        popup = error;
+      }
+      popup.remove();
+      body.classList.remove(`modal-open`);
+      window.removeEventListener(`keydown`, pressEscapeMessage);
+      popup.removeEventListener(`click`, closeMessage);
+    };
+
+    const closeMessage = function (evt) {
+      const target = evt.target;
+      if (target[`type`] === `button` || target.tagName.toLowerCase() === `section`) {
+        removeMessagePopup();
+      }
+    };
+
+    uploadForm.addEventListener(`submit`, function (evt) {
+      evt.preventDefault();
+      const data = new FormData(uploadForm);
+      window.server.upload(data, submitSuccess, submitError);
+    });
 
     window.form = {
       closePopup: closeUploadPopup
