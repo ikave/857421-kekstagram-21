@@ -29,6 +29,6 @@
     window.getData(posts);
   };
 
-  window.load(onSuccess, onError);
+  window.server.load(onSuccess, onError);
 
 })();
