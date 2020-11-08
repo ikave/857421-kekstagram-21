@@ -27,6 +27,7 @@
     setDataId(posts);
     window.render(posts);
     window.getData(posts);
+    window.filter(posts);
   };
 
   window.server.load(onSuccess, onError);
