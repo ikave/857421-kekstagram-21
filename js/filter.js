@@ -16,7 +16,7 @@
   };
 
   const getUniqueRandomPicture = function (data) {
-    const posts = data;
+    const posts = data.slice();
     return posts.sort(function () {
       return window.util.randomNum(-1, 1);
     }).slice(0, UNIQUE_PICTURES_MAX);
@@ -40,17 +40,20 @@
   window.filter = function (data) {
     filterBlock.classList.remove(`img-filters--inactive`);
 
+    let posts = data.slice();
+
     const filterList = function (evt) {
       setActiveFilter(evt);
       const filter = evt.target.id;
       if (evt.target.id === `filter-default`) {
+        removePosts();
         window.render(data);
       } else if (filter === `filter-random`) {
         removePosts();
-        window.render(getUniqueRandomPicture(data));
+        window.render(getUniqueRandomPicture(posts));
       } else if (filter === `filter-discussed`) {
         removePosts();
-        window.render(getMostDiscussPicture(data));
+        window.render(getMostDiscussPicture(posts));
       }
     };
 

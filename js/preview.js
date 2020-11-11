@@ -83,7 +83,11 @@
     picturesList.addEventListener(`click`, function (evt) {
       let target = evt.target.closest(`.picture`);
       if (target) {
-        window.preview.show(posts[target.dataset.id]);
+        for (let post of posts) {
+          if (post.id.toString() === target.dataset.id) {
+            window.preview.show(post);
+          }
+        }
       }
     });
   };
