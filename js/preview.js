@@ -3,18 +3,20 @@
 (function () {
   const bigPicture = document.querySelector(`.big-picture`);
   const socialComments = bigPicture.querySelector(`.social__comments`);
-  const socialCommentsCount = bigPicture.querySelector(`.social__comment-count`);
   const commentsLoader = bigPicture.querySelector(`.comments-loader`);
   const bigPictureCloseButton = bigPicture.querySelector(`.big-picture__cancel`);
   const picturesList = document.querySelector(`.pictures`);
 
-  socialCommentsCount.classList.add(`hidden`);
-  commentsLoader.classList.add(`hidden`);
+  let postElement;
+  let startIndex = 0;
+  let endIndex = 5;
 
-  const oldComments = socialComments.children;
-  for (let i = oldComments.length - 1; i >= 0; i--) {
-    oldComments[i].remove();
-  }
+  const removeComments = function () {
+    const oldComments = socialComments.children;
+    for (let i = oldComments.length - 1; i >= 0; i--) {
+      oldComments[i].remove();
+    }
+  };
 
   const createSocialComment = function (array, index, parent) {
     const element = document.createElement(`li`);
@@ -37,9 +39,23 @@
   };
 
   const renderSocialComments = function (post) {
-    for (let i = 0; i < post.comments.length; i++) {
-      createSocialComment(post.comments, i, socialComments);
+    const COMMENTS_LOAD_STEP = 5;
+
+    const comments = post.comments;
+    if (comments.length < endIndex) {
+      endIndex = comments.length;
+      commentsLoader.classList.add(`hidden`);
     }
+
+    for (let i = startIndex; i < endIndex; i++) {
+      createSocialComment(comments, i, socialComments);
+    }
+    startIndex = startIndex + COMMENTS_LOAD_STEP;
+    endIndex = endIndex + COMMENTS_LOAD_STEP;
+  };
+
+  const loadCommentClickHandler = function () {
+    renderSocialComments(postElement);
   };
 
   const renderBigPicture = function (item, post) {
@@ -53,19 +69,26 @@
     likes.textContent = post.likes;
     commentsCount.textContent = post.comments.length;
 
-    renderSocialComments(post);
+    renderSocialComments(postElement);
   };
 
   const showBigPicturePopup = function (item) {
+    postElement = item;
     bigPicture.classList.remove(`hidden`);
     document.querySelector(`body`).classList.add(`modal-open`);
+    document.querySelector(`body`).classList.remove(`modal-open`);
+    removeComments();
     renderBigPicture(bigPicture, item);
+    commentsLoader.addEventListener(`click`, loadCommentClickHandler);
     window.addEventListener(`keydown`, closeBigPictureEsc);
   };
 
   const closeBigPicturePopup = function () {
+    startIndex = 0;
+    endIndex = 5;
     bigPicture.classList.add(`hidden`);
-    document.querySelector(`body`).classList.remove(`modal-open`);
+    commentsLoader.classList.remove(`hidden`);
+    commentsLoader.removeEventListener(`click`, loadCommentClickHandler);
   };
 
   const closeBigPictureEsc = function (evt) {
