@@ -23,10 +23,10 @@
   };
 
   const onSuccess = function (data) {
-    posts = data;
+    posts = data.slice();
     setDataId(posts);
-    window.render(posts);
-    window.getData(posts);
+    window.gallery(posts);
+    window.preview.data(posts);
     window.filter(posts);
   };
 
