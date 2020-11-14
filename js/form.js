@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
   const IMAGE_SCALE_MIN = 25;
   const IMAGE_SCALE_MAX = 100;
   const IMAGE_SCALE_STEP = 25;
@@ -12,6 +13,7 @@
   const uploadFile = document.querySelector(`#upload-file`);
   const uploadOverlay = document.querySelector(`.img-upload__overlay`);
   const effectLevelBlock = uploadOverlay.querySelector(`.effect-level`);
+  const effectsPreview = document.querySelectorAll(`.effects__preview`);
   const effectLevelLine = uploadOverlay.querySelector(`.effect-level__line`);
   const effectLevelPin = uploadOverlay.querySelector(`.effect-level__pin`);
   const effectLevelDepth = uploadOverlay.querySelector(`.effect-level__depth`);
@@ -153,7 +155,28 @@
     window.util.pressEscKey(evt, closeUploadPopup);
   };
 
+  const renderPhoto = function () {
+    const file = uploadFile.files[0];
+    const fileName = file.name.toLowerCase();
+
+    const matches = FILE_TYPES.some(function (it) {
+      return fileName.endsWith(it);
+    });
+
+    if (matches) {
+      const reader = new FileReader();
+      reader.addEventListener(`load`, () => {
+        uploadPreview.src = reader.result;
+        for (let i = 0; i < effectsPreview.length; i++) {
+          effectsPreview[i].style.backgroundImage = `url(${reader.result})`;
+        }
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
   uploadFile.addEventListener(`change`, function () {
+    renderPhoto();
     openUploadPopup();
     setEffectLevel();
 
