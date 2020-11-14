@@ -18,7 +18,7 @@
     return postElement;
   };
 
-  window.render = function (posts) {
+  window.gallery = function (posts) {
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < posts.length; i++) {
       fragment.appendChild(renderPost(posts[i]));

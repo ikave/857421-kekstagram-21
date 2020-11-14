@@ -47,13 +47,13 @@
       const filter = evt.target.id;
       if (evt.target.id === `filter-default`) {
         removePosts();
-        window.render(data);
+        window.gallery(data);
       } else if (filter === `filter-random`) {
         removePosts();
-        window.render(getUniqueRandomPicture(posts));
+        window.gallery(getUniqueRandomPicture(posts));
       } else if (filter === `filter-discussed`) {
         removePosts();
-        window.render(getMostDiscussPicture(posts));
+        window.gallery(getMostDiscussPicture(posts));
       }
     };
 

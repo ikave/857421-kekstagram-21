@@ -57,7 +57,7 @@
     return result;
   };
 
-  const getHashtagLength = function (hashtags) {
+  const checkHashtagLength = function (hashtags) {
     let result = false;
     for (let hashtag of hashtags) {
       if (hashtag.length > HASHTAG_WIDTH_MAX) {
@@ -90,7 +90,7 @@
       hashtagInput.setCustomValidity(`Неверный хеш-тег`);
     } else if (hashtags.length > HASHTAGS_MAX_LENGTH) {
       hashtagInput.setCustomValidity(`Максимальная количество хеш-тегов не может быть больше ${HASHTAGS_MAX_LENGTH}`);
-    } else if (getHashtagLength(hashtags)) {
+    } else if (checkHashtagLength(hashtags)) {
       hashtagInput.setCustomValidity(`Максимальная длинна хештега ${HASHTAG_WIDTH_MAX} символов`);
     } else if (isSharpHashtag(hashtags)) {
       hashtagInput.setCustomValidity(`Хеш-тег не может состоять только из одной решётки`);
@@ -124,6 +124,4 @@
   uploadClose.addEventListener(`click`, function () {
     window.form.closePopup();
   });
-
-
 })();
