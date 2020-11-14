@@ -102,7 +102,7 @@
     }
   };
 
-  window.getData = function (posts) {
+  const getData = function (posts) {
     picturesList.addEventListener(`click`, function (evt) {
       let target = evt.target.closest(`.picture`);
       if (target) {
@@ -124,6 +124,7 @@
   });
 
   window.preview = {
+    data: getData,
     show: showBigPicturePopup
   };
 

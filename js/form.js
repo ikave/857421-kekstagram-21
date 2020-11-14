@@ -104,7 +104,6 @@
     };
 
     const mouseUpHandler = function () {
-
       document.removeEventListener(`mousemove`, mouseMoveHandler);
       document.removeEventListener(`mouseup`, mouseUpHandler);
     };
@@ -150,7 +149,7 @@
     }
   };
 
-  const pressEscapeHandler = function (evt) {
+  const onEscapePress = function (evt) {
     window.util.pressEscKey(evt, closeUploadPopup);
   };
 
@@ -177,24 +176,24 @@
     effectLevelPin.addEventListener(`mousedown`, mouseMove);
 
     hashtagInput.addEventListener(`focus`, function () {
-      window.removeEventListener(`keydown`, pressEscapeHandler);
+      window.removeEventListener(`keydown`, onEscapePress);
     });
 
     hashtagInput.addEventListener(`blur`, function () {
-      window.addEventListener(`keydown`, pressEscapeHandler);
+      window.addEventListener(`keydown`, onEscapePress);
     });
 
     textareaInput.addEventListener(`focus`, function () {
-      window.removeEventListener(`keydown`, pressEscapeHandler);
+      window.removeEventListener(`keydown`, onEscapePress);
     });
 
     textareaInput.addEventListener(`blur`, function () {
-      window.addEventListener(`keydown`, pressEscapeHandler);
+      window.addEventListener(`keydown`, onEscapePress);
     });
 
-    window.addEventListener(`keydown`, pressEscapeHandler);
+    window.addEventListener(`keydown`, onEscapePress);
 
-    const pressEscapeMessage = function (evt) {
+    const onPressEscapeMessage = function (evt) {
       window.util.pressEscKey(evt, removeMessagePopup);
     };
 
@@ -203,7 +202,7 @@
       closeUploadPopup();
       main.append(successBlock);
       successBlock.addEventListener(`click`, closeMessage);
-      window.addEventListener(`keydown`, pressEscapeMessage);
+      window.addEventListener(`keydown`, onPressEscapeMessage);
     };
 
     const submitError = function () {
@@ -211,7 +210,7 @@
       closeUploadPopup();
       main.append(errorBlock);
       errorBlock.addEventListener(`click`, closeMessage);
-      window.addEventListener(`keydown`, pressEscapeMessage);
+      window.addEventListener(`keydown`, onPressEscapeMessage);
     };
 
     const removeMessagePopup = function () {
@@ -225,7 +224,7 @@
       }
       popup.remove();
       body.classList.remove(`modal-open`);
-      window.removeEventListener(`keydown`, pressEscapeMessage);
+      window.removeEventListener(`keydown`, onPressEscapeMessage);
       popup.removeEventListener(`click`, closeMessage);
     };
 
