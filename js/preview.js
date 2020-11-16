@@ -96,7 +96,9 @@ const closeBigPicturePopup = () => {
   bigPicture.classList.add(`hidden`);
   document.querySelector(`body`).classList.remove(`modal-open`);
   commentsLoader.classList.remove(`hidden`);
+  deleteSocialComments();
   commentsLoader.removeEventListener(`click`, onCommentsLoaderClick);
+  window.removeEventListener(`keydown`, onBigPicturePressEsc);
 };
 
 const onBigPicturePressEsc = (evt) => {
@@ -105,9 +107,12 @@ const onBigPicturePressEsc = (evt) => {
 
 const deleteSocialComments = () => {
   let comments = socialComments.querySelectorAll(`.social__comment`);
-  for (let comment of comments) {
+  comments.forEach((comment) => {
     comment.remove();
-  }
+  });
+  // for (let comment of comments) {
+  //   comment.remove();
+  // }
 };
 
 const getData = (posts) => {
@@ -125,9 +130,6 @@ const getData = (posts) => {
 
 bigPictureCloseButton.addEventListener(`click`, () => {
   closeBigPicturePopup();
-  deleteSocialComments();
-
-  window.removeEventListener(`keydown`, onBigPicturePressEsc);
   bigPictureCloseButton.removeEventListener(`click`, closeBigPicturePopup);
 });
 

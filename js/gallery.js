@@ -26,5 +26,5 @@ const createGallery = (posts) => {
 };
 
 window.gallery = {
-  showGallery: createGallery
+  show: createGallery
 };

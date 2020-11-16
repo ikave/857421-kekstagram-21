@@ -118,5 +118,6 @@ textareaInput.addEventListener(`input`, () => {
 });
 
 uploadClose.addEventListener(`click`, () => {
-  window.form.closePopup();
+  document.querySelector(`body`).classList.remove(`modal-open`);
+  window.form.close();
 });

@@ -6,12 +6,12 @@ const filterBlock = document.querySelector(`.img-filters`);
 const filterButtons = filterBlock.querySelectorAll(`.img-filters__button`);
 
 const setActiveFilter = (evt) => {
-  for (let button of filterButtons) {
+  filterButtons.forEach((button) => {
     button.classList.remove(`img-filters__button--active`);
     if (evt.target === button) {
       button.classList.add(`img-filters__button--active`);
     }
-  }
+  });
 };
 
 const getUniqueRandomPicture = (data) => {
@@ -30,9 +30,9 @@ const getMostDiscussPicture = (data) => {
 
 const removePosts = () => {
   const pictures = document.querySelectorAll(`.picture`);
-  for (let picture of pictures) {
+  pictures.forEach((picture) => {
     picture.remove();
-  }
+  });
 };
 
 
@@ -46,13 +46,13 @@ window.filter = (data) => {
     const filter = evt.target.id;
     if (evt.target.id === `filter-default`) {
       removePosts();
-      window.gallery.showGallery(data);
+      window.gallery.show(data);
     } else if (filter === `filter-random`) {
       removePosts();
-      window.gallery.showGallery(getUniqueRandomPicture(posts));
+      window.gallery.show(getUniqueRandomPicture(posts));
     } else if (filter === `filter-discussed`) {
       removePosts();
-      window.gallery.showGallery(getMostDiscussPicture(posts));
+      window.gallery.show(getMostDiscussPicture(posts));
     }
   };
 

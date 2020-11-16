@@ -2,6 +2,13 @@
 
 const TIMEOUT_IN_MS = 10000;
 
+const StatusCode = {
+  OK: 200,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  NOT_FOUND: 404
+};
+
 const Url = {
   POST: `https://21.javascript.pages.academy/kekstagram`,
   GET: `https://21.javascript.pages.academy/kekstagram/data`
@@ -15,16 +22,16 @@ const createXhr = (onSuccess, onError) => {
   xhr.addEventListener(`load`, () => {
     let error;
     switch (xhr.status) {
-      case 200:
+      case StatusCode.OK:
         onSuccess(xhr.response);
         break;
-      case 400:
+      case StatusCode.BAD_REQUEST:
         error = `Неверный запрос`;
         break;
-      case 401:
+      case StatusCode.UNAUTHORIZED:
         error = `Пользователь не авторизован`;
         break;
-      case 404:
+      case StatusCode.NOT_FOUND:
         error = `Ничего не найдено`;
         break;
 

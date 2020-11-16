@@ -5,6 +5,7 @@ const IMAGE_SCALE_MIN = 25;
 const IMAGE_SCALE_MAX = 100;
 const IMAGE_SCALE_STEP = 25;
 const BASE_EFFECT_LEVEL = 100;
+const EFFECT_POWER = 3;
 
 const body = document.querySelector(`body`);
 const main = document.querySelector(`main`);
@@ -41,15 +42,15 @@ const getEffects = () => {
     chrome: `grayscale(${effectLevel / 100})`,
     sepia: `sepia(${effectLevel / 100})`,
     marvin: `invert(${effectLevel}%)`,
-    phobos: `blur(${effectLevel * 3 / 100}px)`,
-    heat: `brightness(${effectLevel * 3 / 100})`,
+    phobos: `blur(${effectLevel * EFFECT_POWER / 100}px)`,
+    heat: `brightness(${effectLevel * EFFECT_POWER / 100})`,
   };
   return filterEffects;
 };
 
 const setEffectLevel = () => {
   let effects = getEffects();
-  for (let radio of effectsRadio) {
+  effectsRadio.forEach((radio) => {
     if (radio.checked) {
       for (let effect in effects) {
         if (radio.value === effect) {
@@ -61,7 +62,7 @@ const setEffectLevel = () => {
         }
       }
     }
-  }
+  });
 };
 
 const submitSuccess = () => {
@@ -79,6 +80,7 @@ const submitError = () => {
 };
 
 const showMessagePopup = () => {
+  body.classList.add(`modal-open`);
   window.addEventListener(`keydown`, onMessagePressEscape);
   const data = new FormData(uploadForm);
   window.server.upload(data, submitSuccess, submitError);
@@ -104,7 +106,7 @@ const openUploadPopup = () => {
   uploadOverlay.classList.remove(`hidden`);
   body.classList.add(`modal-open`);
   hashtagInput.value = ``;
-  uploadScaleInput.value = `100%`;
+  uploadScaleInput.value = `${IMAGE_SCALE_MAX}%`;
   uploadPreview.style.transform = `scale(1)`;
   uploadForm.addEventListener(`submit`, onFormSubmit);
 };
@@ -166,7 +168,6 @@ const onEffectLevelMouseMove = (evt) => {
 
 const closeUploadPopup = () => {
   uploadOverlay.classList.add(`hidden`);
-  body.classList.remove(`modal-open`);
   uploadScale.removeEventListener(`click`, onScaleClick);
   uploadFile.value = ``;
   for (let i = 0; i < effectsRadio.length; i++) {
@@ -209,6 +210,7 @@ const onScaleClick = (evt) => {
 };
 
 const onEscapePress = (evt) => {
+  body.classList.remove(`modal-open`);
   window.util.pressEscKey(evt, closeUploadPopup);
 };
 
@@ -224,9 +226,9 @@ const renderPhoto = () => {
     const reader = new FileReader();
     reader.addEventListener(`load`, () => {
       uploadPreview.setAttribute(`src`, reader.result);
-      for (let preview of effectsPreview) {
+      effectsPreview.forEach((preview) => {
         preview.style.backgroundImage = `url(${reader.result})`;
-      }
+      });
     });
     reader.readAsDataURL(file);
   }
@@ -271,6 +273,6 @@ uploadFile.addEventListener(`change`, () => {
   });
 
   window.form = {
-    closePopup: closeUploadPopup
+    close: closeUploadPopup
   };
 });

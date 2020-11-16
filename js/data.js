@@ -24,7 +24,7 @@ const onError = (message) => {
 const onSuccess = (data) => {
   posts = data.slice();
   setDataId(posts);
-  window.gallery.showGallery(posts);
+  window.gallery.show(posts);
   window.preview.data(posts);
   window.filter(posts);
 };
